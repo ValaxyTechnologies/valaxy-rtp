@@ -7,26 +7,30 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo '<--------------- Building started --------------->'
+                echo '<--------------- Building --------------->'
                 sh 'printenv'
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
                 echo '<------------- Build completed --------------->'
             }
         }
-
-  stage ("Sonar Analysis") {
+        stage('Unit Test') {
+            steps {
+                echo '<--------------- Unit Testing started  --------------->'
+                sh 'mvn surefire-report:report'
+                echo '<------------- Unit Testing stopped  --------------->'
+            }
+        }
+        stage('Sonar Analysis') {
             environment {
-               scannerHome = tool 'Valaxy-SonarScanner'  //scanner name configured for slave 
+                scannerHome = tool 'SonarQubeScanner'
             }
             steps {
-                echo '<--------------- Sonar Analysis started  --------------->'
-                withSonarQubeEnv('Valaxy-SonarQube') {    
-                    //sonarqube server name in master
+                echo '<--------------- Sonar Analysis Started --------------->'
+                withSonarQubeEnv('SonarQube'){
                     sh "${scannerHome}/bin/sonar-scanner"
                 }    
-                echo '<--------------- Sonar Analysis stopped  --------------->'
-            }   
+                echo '<--------------- Sonar Analysis Ends --------------->'
+            }    
         }
     }
-
-}
+ }
